@@ -3,7 +3,7 @@ import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import React from 'react'
-// import { toast } from 'sonner';
+import { toast } from 'sonner';
 import { useNavigate } from 'react-router';
 
 export default function LoginPage() {
@@ -12,7 +12,7 @@ export default function LoginPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log(e.target.username.value, e.target.password.value);
-    // toast.success('Login successful');
+    toast.success('Login successful');
     navigate('/dashboard');
   }
   return (
