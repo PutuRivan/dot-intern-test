@@ -13,7 +13,7 @@ export default function LoginPage() {
     e.preventDefault();
     console.log(e.target.username.value, e.target.password.value);
     toast.success('Login successful');
-    navigate('/dashboard');
+    navigate('/home');
   }
   return (
     <main className="grid place-items-center h-svh">
