@@ -15,8 +15,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import React from "react";
+import { useNavigate } from "react-router";
 
 export default function HomePage() {
+  const navigate = useNavigate();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    navigate("/quiz");
+  };
+  
   return (
     <main className="h-svh px-50 py-10 space-y-5">
       {/* Header */}
@@ -115,7 +123,9 @@ export default function HomePage() {
                 </SelectContent>
               </Select>
             </Field>
-            <Button className={"w-full"} size="lg">Start Quiz</Button>
+            <Button className={"w-full"} size="lg" onClick={handleSubmit}>
+              Start Quiz
+            </Button>
           </form>
         </CardContent>
       </Card>
