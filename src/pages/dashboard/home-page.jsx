@@ -1,3 +1,4 @@
+import Header from "@/components/home/header";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -24,17 +25,10 @@ export default function HomePage() {
     e.preventDefault();
     navigate("/quiz");
   };
-  
+
   return (
     <main className="h-svh px-50 py-10 space-y-5">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold ">Quiz App</h1>
-          <h3>Welcome Back, Putu Rivan</h3>
-        </div>
-        <Button size="lg">Logout</Button>
-      </div>
+      <Header />
       {/* Quiz Option */}
       <Card>
         <CardHeader>
