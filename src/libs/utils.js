@@ -16,3 +16,7 @@ export function setLocalStorage(key, value) {
 export function removeLocalStorage(key) {
   localStorage.removeItem(key);
 }
+
+export function shuffleArray(array) {
+  return [...array].sort(() => Math.random() - 0.5);
+}

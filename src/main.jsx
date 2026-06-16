@@ -5,12 +5,15 @@ import { router } from "./routes";
 import { RouterProvider } from "react-router";
 import { Toaster } from "./components/ui/sonner";
 import AuthProvider from "./providers/auth-provider";
+import QuizProvider from "./providers/quiz-provider";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <AuthProvider>
-      <RouterProvider router={router} />
-      <Toaster richColors position="top-center" />
+      <QuizProvider>
+        <RouterProvider router={router} />
+        <Toaster richColors position="top-center" />
+      </QuizProvider>
     </AuthProvider>
   </StrictMode>,
 );
