@@ -20,3 +20,9 @@ export function removeLocalStorage(key) {
 export function shuffleArray(array) {
   return [...array].sort(() => Math.random() - 0.5);
 }
+
+export function formatTime(seconds) {
+  const mins = Math.floor(seconds / 60)
+  const secs = seconds % 60
+  return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
+}

@@ -4,8 +4,13 @@ import { useQuiz } from "@/context/quiz-context";
 import React from "react";
 
 export default function QuizPage() {
-  const { Questions, CurrentQuestionIndex, Answers, answerQuestion } =
-    useQuiz();
+  const {
+    Questions,
+    CurrentQuestionIndex,
+    Answers,
+    answerQuestion,
+    timeRemaining,
+  } = useQuiz();
   const currentQuestion = Questions[CurrentQuestionIndex];
   const answeredCount = Object.keys(Answers).length;
 
@@ -15,6 +20,7 @@ export default function QuizPage() {
         answeredCount={answeredCount}
         questionCount={Questions.length}
         CurrentQuestionIndex={CurrentQuestionIndex}
+        timeRemaining={timeRemaining}
       />
       <QuizQuestionContainer
         question={currentQuestion}

@@ -32,13 +32,15 @@ export default function HomePage() {
       type: "multiple",
     },
   });
-  const { isQuestionsLoading, fetchQuestions, QuestionCategories } = useQuiz();
+  const { isQuestionsLoading, fetchQuestions, QuestionCategories, startQuiz } =
+    useQuiz();
 
   const onSubmit = async (data) => {
     const response = await fetchQuestions(data);
     if (!response.success) {
       toast.error("Kesalahan saat membuat soal");
     }
+    startQuiz(data)
     toast.success(response.message);
     navigate("/quiz");
   };

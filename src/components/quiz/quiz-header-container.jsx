@@ -1,11 +1,13 @@
 import React from "react";
 import { Card, CardContent } from "../ui/card";
 import { Progress } from "../ui/progress";
+import { cn, formatTime } from "@/libs/utils";
 
 export default function QuizHeaderContainer({
   answeredCount,
   questionCount,
   CurrentQuestionIndex,
+  timeRemaining,
 }) {
   const progress = (answeredCount / questionCount) * 100;
 
@@ -19,7 +21,13 @@ export default function QuizHeaderContainer({
           />
           <QuizHeaderContent title={"Answered"} content={answeredCount} />
           <QuizHeaderContent title={"Remaining"} content={"10"} />
-          <QuizHeaderContent title={"Time Left"} content={"10:00"} />
+          <QuizHeaderContent
+            title={"Time Left"}
+            content={formatTime(timeRemaining)}
+            className={
+              timeRemaining < 60 ? "text-destructive" : "text-foreground"
+            }
+          />
         </div>
         <div className="space-y-2">
           <div className="flex justify-between items-center">
@@ -33,11 +41,11 @@ export default function QuizHeaderContainer({
   );
 }
 
-function QuizHeaderContent({ title, content }) {
+function QuizHeaderContent({ title, content, className }) {
   return (
     <div className="text-center">
       <p className="text-muted-foreground text-sm mb-1">{title}</p>
-      <p className="text-2xl font-bold">{content}</p>
+      <p className={cn("text-2xl font-bold", className)}>{content}</p>
     </div>
   );
 }

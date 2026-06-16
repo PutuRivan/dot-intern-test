@@ -1,4 +1,5 @@
 import { QuizContext } from "@/context/quiz-context";
+import { useTimer } from "@/hooks/use-timer";
 import { shuffleArray } from "@/libs/utils";
 import React, { useCallback, useEffect, useState } from "react";
 
@@ -8,9 +9,16 @@ export default function QuizProvider({ children }) {
   const [isQuestionsLoading, setisQuestionsLoading] = useState(false);
   const [isCategoryLoading, setisCategoryLoading] = useState(false);
 
+  const [isQuizActive, setIsQuizActive] = useState(false);
+
   // Quiz State Progress
   const [CurrentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [Answers, setAnswers] = useState([]);
+  const [timeRemaining, setTimeRemaining] = useState(0);
+
+  useTimer(isQuizActive, timeRemaining, setTimeRemaining, () => {
+    completeQuiz();
+  });
 
   const fetchCategories = async () => {
     setisCategoryLoading(true);
@@ -74,9 +82,12 @@ export default function QuizProvider({ children }) {
     }
   };
 
-  const startQuiz = () => {
+  const startQuiz = (config) => {
     setCurrentQuestionIndex(0);
     setAnswers({});
+    const timeInSeconds = config.duration * 60;
+    setTimeRemaining(timeInSeconds);
+    setIsQuizActive(true);
   };
 
   const answerQuestion = (questionId, answer) => {
@@ -86,7 +97,7 @@ export default function QuizProvider({ children }) {
     }));
 
     if (CurrentQuestionIndex < Questions.length - 1) {
-      setCurrentQuestionIndex((prev) => prev + 1);
+      setCurrentQuestionIndex((prev) => prev + 1);``
     } else {
     }
   };
@@ -105,6 +116,7 @@ export default function QuizProvider({ children }) {
         isQuestionsLoading,
         CurrentQuestionIndex,
         Answers,
+        timeRemaining,
         startQuiz,
         fetchQuestions,
         answerQuestion,

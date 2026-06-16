@@ -15,6 +15,7 @@ export default function QuizQuestionContainer({ question, answerQuestion }) {
           <h2 className="text-3xl">{question.question}</h2>
           {question.options.map((option, index) => (
             <Button
+              key={index}
               variant="outline"
               onClick={() => answerQuestion(question.id, option)}
               className="w-full h-16 text-lg font-medium text-start justify-start"
