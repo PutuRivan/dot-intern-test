@@ -4,9 +4,11 @@ import { useQuiz } from "@/context/quiz-context";
 import React from "react";
 
 export default function QuizPage() {
-  const { Questions, CurrentQuestionIndex, Answers } = useQuiz();
+  const { Questions, CurrentQuestionIndex, Answers, answerQuestion } =
+    useQuiz();
   const currentQuestion = Questions[CurrentQuestionIndex];
   const answeredCount = Object.keys(Answers).length;
+
   return (
     <main className="max-w-2xl mx-auto p-5 space-y-5">
       <QuizHeaderContainer
@@ -14,7 +16,10 @@ export default function QuizPage() {
         questionCount={Questions.length}
         CurrentQuestionIndex={CurrentQuestionIndex}
       />
-      <QuizQuestionContainer question={currentQuestion} />
+      <QuizQuestionContainer
+        question={currentQuestion}
+        answerQuestion={answerQuestion}
+      />
     </main>
   );
 }

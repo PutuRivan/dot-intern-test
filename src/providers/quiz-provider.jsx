@@ -79,6 +79,23 @@ export default function QuizProvider({ children }) {
     setAnswers({});
   };
 
+  const answerQuestion = (questionId, answer) => {
+    setAnswers((prev) => ({
+      ...prev,
+      [questionId]: answer,
+    }));
+
+    if (CurrentQuestionIndex < Questions.length - 1) {
+      setCurrentQuestionIndex((prev) => prev + 1);
+    } else {
+    }
+  };
+
+  const completeQuiz = useCallback(() => {
+    setIsQuizActive(false);
+    setIsQuizComplete(true);
+  }, []);
+
   return (
     <QuizContext.Provider
       value={{
@@ -90,6 +107,8 @@ export default function QuizProvider({ children }) {
         Answers,
         startQuiz,
         fetchQuestions,
+        answerQuestion,
+        completeQuiz,
       }}
     >
       {children}
