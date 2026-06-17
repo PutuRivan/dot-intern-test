@@ -21,10 +21,10 @@ export const router = createBrowserRouter([
         path: "/quiz",
         element: <QuizPage />,
       },
+      {
+        path: "/result",
+        element: <ResultPage />,
+      },
     ],
-  },
-  {
-    path: "/result",
-    element: <ResultPage />,
   },
 ]);

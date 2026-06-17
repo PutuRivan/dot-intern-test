@@ -1,4 +1,6 @@
+import { useMemo } from "react";
 import { Label, Pie, PieChart } from "recharts";
+
 import {
   ChartContainer,
   ChartLegend,
@@ -6,12 +8,6 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { useMemo } from "react";
-
-const chartData = [
-  { answer: "correct", questions: 275, fill: "var(--color-correct)" },
-  { answer: "incorrect", questions: 200, fill: "var(--color-incorrect)" },
-];
 
 const chartConfig = {
   questions: {
@@ -27,10 +23,22 @@ const chartConfig = {
   },
 };
 
-export default function PieChartContainer() {
-  const totalQuestions = useMemo(() => {
-    return chartData.reduce((acc, curr) => acc + curr.questions, 0);
-  }, []);
+export default function PieChartContainer({ correct, incorrect, score }) {
+  const chartData = useMemo(
+    () => [
+      {
+        answer: "correct",
+        questions: correct,
+        fill: "var(--color-correct)",
+      },
+      {
+        answer: "incorrect",
+        questions: incorrect,
+        fill: "var(--color-incorrect)",
+      },
+    ],
+    [correct, incorrect],
+  );
 
   return (
     <ChartContainer
@@ -42,6 +50,7 @@ export default function PieChartContainer() {
           cursor={false}
           content={<ChartTooltipContent hideLabel />}
         />
+
         <Pie
           data={chartData}
           dataKey="questions"
@@ -64,14 +73,14 @@ export default function PieChartContainer() {
                       y={viewBox.cy}
                       className="fill-foreground text-3xl font-bold"
                     >
-                      {totalQuestions.toLocaleString()}
+                      {score}
                     </tspan>
                     <tspan
                       x={viewBox.cx}
                       y={(viewBox.cy || 0) + 24}
                       className="fill-muted-foreground"
                     >
-                      Questions
+                      Score
                     </tspan>
                   </text>
                 );
@@ -79,6 +88,10 @@ export default function PieChartContainer() {
             }}
           />
         </Pie>
+        <ChartLegend
+          content={<ChartLegendContent />}
+          className="-translate-y-2 flex-wrap gap-2 *:basis-1/4 *:justify-center"
+        />
       </PieChart>
     </ChartContainer>
   );

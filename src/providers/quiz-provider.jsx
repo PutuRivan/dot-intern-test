@@ -10,11 +10,15 @@ export default function QuizProvider({ children }) {
   const [isCategoryLoading, setisCategoryLoading] = useState(false);
 
   const [isQuizActive, setIsQuizActive] = useState(false);
+  const [isQuizComplete, setIsQuizComplete] = useState(false);
 
   // Quiz State Progress
   const [CurrentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [Answers, setAnswers] = useState([]);
   const [timeRemaining, setTimeRemaining] = useState(0);
+
+  // Final Quiz State
+  const [Result, setResult] = useState(null);
 
   useTimer(isQuizActive, timeRemaining, setTimeRemaining, () => {
     completeQuiz();
@@ -85,6 +89,7 @@ export default function QuizProvider({ children }) {
   const startQuiz = (config) => {
     setCurrentQuestionIndex(0);
     setAnswers({});
+    setIsQuizComplete(false);
     const timeInSeconds = config.duration * 60;
     setTimeRemaining(timeInSeconds);
     setIsQuizActive(true);
@@ -97,15 +102,36 @@ export default function QuizProvider({ children }) {
     }));
 
     if (CurrentQuestionIndex < Questions.length - 1) {
-      setCurrentQuestionIndex((prev) => prev + 1);``
+      setCurrentQuestionIndex((prev) => prev + 1);
     } else {
+      completeQuiz();
     }
   };
 
   const completeQuiz = useCallback(() => {
+    const score = Object.values(Answers).filter(
+      (answer) => answer.isCorrect,
+    ).length;
+
+    const incorrect = Questions.length - score;
+
+    const percentage =
+      Questions.length === 0 ? 0 : Math.round((score / Questions.length) * 100);
+
+    setResult({
+      score,
+      incorrect,
+      total: Questions.length,
+      percentage,
+      answers: Answers,
+      questions: Questions,
+      completedAt: new Date(),
+      timeRemaining,
+    });
+
     setIsQuizActive(false);
     setIsQuizComplete(true);
-  }, []);
+  }, [Answers, Questions, timeRemaining]);
 
   return (
     <QuizContext.Provider
@@ -117,6 +143,8 @@ export default function QuizProvider({ children }) {
         CurrentQuestionIndex,
         Answers,
         timeRemaining,
+        isQuizComplete,
+        Result,
         startQuiz,
         fetchQuestions,
         answerQuestion,
