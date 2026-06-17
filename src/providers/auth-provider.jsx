@@ -5,11 +5,21 @@ import {
   removeLocalStorage,
   setLocalStorage,
 } from "@/libs/utils";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const storedUser = getLocalStorage("user");
+
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+
+    setIsLoading(false);
+  }, []);
 
   const login = ({ username, password }) => {
     setIsLoading(true);
@@ -65,6 +75,7 @@ export default function AuthProvider({ children }) {
 
   const logout = () => {
     removeLocalStorage("user");
+    setUser(null);
     return {
       success: true,
       message: "Berhasil Logout",
