@@ -3,6 +3,7 @@ import LoginPage from "../pages/auth/login-page";
 import HomePage from "@/pages/dashboard/home-page";
 import QuizPage from "@/pages/dashboard/quiz-page";
 import ProtectedRoute from "./protected-route";
+import ResultPage from "@/pages/dashboard/result-page";
 
 export const router = createBrowserRouter([
   {
@@ -21,5 +22,9 @@ export const router = createBrowserRouter([
         element: <QuizPage />,
       },
     ],
+  },
+  {
+    path: "/result",
+    element: <ResultPage />,
   },
 ]);
