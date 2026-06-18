@@ -10,7 +10,7 @@ export default function HomePage() {
   const {
     isQuestionsLoading,
     fetchQuestions,
-    QuestionCategories,
+    questionCategories,
     startQuiz,
     hasSavedQuiz,
     savedSession,
@@ -47,7 +47,7 @@ export default function HomePage() {
       <QuizOptionContainer
         startQuiz={startQuiz}
         fetchQuestions={fetchQuestions}
-        QuestionCategories={QuestionCategories}
+        questionCategories={questionCategories}
         isQuestionsLoading={isQuestionsLoading}
       />
 

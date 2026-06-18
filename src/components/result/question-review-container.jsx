@@ -2,7 +2,7 @@ import React from "react";
 import QuestionReviewCard from "./question-review-card";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
-export default function QuestionReviewContainer({ Result }) {
+export default function QuestionReviewContainer({ result }) {
   return (
     <section>
       <Card>
@@ -13,11 +13,11 @@ export default function QuestionReviewContainer({ Result }) {
         </CardHeader>
 
         <CardContent className={"space-y-5 p-5 max-h-125 overflow-y-auto"}>
-          {Result.questions.map((question) => (
+          {result.questions.map((question) => (
             <QuestionReviewCard
               key={question.id}
               question={question}
-              selectedAnswer={Result.answers[question.id]}
+              selectedAnswer={result.answers[question.id]}
             />
           ))}
         </CardContent>

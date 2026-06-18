@@ -22,7 +22,7 @@ import { toast } from "sonner";
 export default function QuizOptionContainer({
   isQuestionsLoading,
   fetchQuestions,
-  QuestionCategories,
+  questionCategories,
   startQuiz,
 }) {
   const navigate = useNavigate();
@@ -73,10 +73,10 @@ export default function QuizOptionContainer({
                       <SelectValue placeholder="Select number of questions" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="5">5</SelectItem>
-                      <SelectItem value="10">10</SelectItem>
-                      <SelectItem value="15">15</SelectItem>
-                      <SelectItem value="20">20</SelectItem>
+                      <SelectItem value="5">5 Questions</SelectItem>
+                      <SelectItem value="10">10 Questions</SelectItem>
+                      <SelectItem value="15">15 Questions</SelectItem>
+                      <SelectItem value="20">20 Questions</SelectItem>
                     </SelectContent>
                   </Select>
                 </Field>
@@ -99,11 +99,11 @@ export default function QuizOptionContainer({
                       <SelectValue placeholder="Select Quiz Duration" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="1">1</SelectItem>
-                      <SelectItem value="5">5</SelectItem>
-                      <SelectItem value="10">10</SelectItem>
-                      <SelectItem value="15">15</SelectItem>
-                      <SelectItem value="20">20</SelectItem>
+                      <SelectItem value="1">1 Minutes</SelectItem>
+                      <SelectItem value="5">5 Minutes</SelectItem>
+                      <SelectItem value="10">10 Minutes</SelectItem>
+                      <SelectItem value="15">15 Minutes</SelectItem>
+                      <SelectItem value="20">20 Minutes</SelectItem>
                     </SelectContent>
                   </Select>
                 </Field>
@@ -126,7 +126,7 @@ export default function QuizOptionContainer({
                       <SelectValue placeholder="Select Questions Category" />
                     </SelectTrigger>
                     <SelectContent>
-                      {QuestionCategories.map((category) => (
+                      {questionCategories.map((category) => (
                         <SelectItem
                           key={category.id}
                           value={String(category.id)}

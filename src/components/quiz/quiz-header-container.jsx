@@ -6,7 +6,7 @@ import { cn, formatTime } from "@/libs/utils";
 export default function QuizHeaderContainer({
   answeredCount,
   questionCount,
-  CurrentQuestionIndex,
+  currentQuestionIndex,
   timeRemaining,
 }) {
   const progress = (answeredCount / questionCount) * 100;
@@ -17,10 +17,13 @@ export default function QuizHeaderContainer({
         <div className="grid grid-cols-4 gap-5">
           <QuizHeaderContent
             title={"Questions"}
-            content={`${CurrentQuestionIndex + 1}/${questionCount}`}
+            content={`${currentQuestionIndex + 1}/${questionCount}`}
           />
           <QuizHeaderContent title={"Answered"} content={answeredCount} />
-          <QuizHeaderContent title={"Remaining"} content={"10"} />
+          <QuizHeaderContent
+            title={"Remaining"}
+            content={questionCount - answeredCount}
+          />
           <QuizHeaderContent
             title={"Time Left"}
             content={formatTime(timeRemaining)}

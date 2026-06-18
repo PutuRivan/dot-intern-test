@@ -6,7 +6,7 @@ import { ArrowDown } from "lucide-react";
 import { Button } from "../ui/button";
 import { Link } from "react-router";
 
-export default function StatsReviewContainer({ Result }) {
+export default function StatsReviewContainer({ result }) {
   return (
     <section>
       <Card>
@@ -17,15 +17,15 @@ export default function StatsReviewContainer({ Result }) {
         </CardHeader>
         <CardContent>
           <PieChartContainer
-            correct={Result.correct}
-            incorrect={Result.incorrect}
-            score={Result.score}
+            correct={result.correct}
+            incorrect={result.incorrect}
+            score={result.score}
           />
           <div className="grid grid-cols-4 gap-5">
-            <StatsCard value={Result.correct} label="Correct" />
-            <StatsCard value={Result.incorrect} label="Incorrect" />
-            <StatsCard value={Result.answered} label="Answered" />
-            <StatsCard value={Result.unanswered} label="Unanswered" />
+            <StatsCard value={result.correct} label="Correct" />
+            <StatsCard value={result.incorrect} label="Incorrect" />
+            <StatsCard value={result.answered} label="Answered" />
+            <StatsCard value={result.unanswered} label="Unanswered" />
           </div>
         </CardContent>
         <div className="mt-8 flex flex-col items-center gap-4">

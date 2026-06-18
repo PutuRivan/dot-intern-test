@@ -26,3 +26,9 @@ export function formatTime(seconds) {
   const secs = seconds % 60
   return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
 }
+
+export function decodeHtml(html) {
+  const txt = document.createElement('textarea');
+  txt.innerHTML = html;
+  return txt.value;
+}

@@ -7,15 +7,15 @@ import { useNavigate } from "react-router";
 export default function QuizPage() {
   const navigate = useNavigate();
   const {
-    Questions,
-    CurrentQuestionIndex,
-    Answers,
+    questions,
+    currentQuestionIndex,
+    answers,
     answerQuestion,
     isQuizComplete,
     timeRemaining,
   } = useQuiz();
-  const currentQuestion = Questions[CurrentQuestionIndex];
-  const answeredCount = Object.keys(Answers).length;
+  const currentQuestion = questions[currentQuestionIndex];
+  const answeredCount = Object.keys(answers).length;
 
   useEffect(() => {
     if (isQuizComplete) {
@@ -29,8 +29,8 @@ export default function QuizPage() {
     <main className="max-w-2xl mx-auto p-5 space-y-5">
       <QuizHeaderContainer
         answeredCount={answeredCount}
-        questionCount={Questions.length}
-        CurrentQuestionIndex={CurrentQuestionIndex}
+        questionCount={questions.length}
+        currentQuestionIndex={currentQuestionIndex}
         timeRemaining={timeRemaining}
       />
       <QuizQuestionContainer

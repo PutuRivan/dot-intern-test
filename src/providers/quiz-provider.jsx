@@ -1,6 +1,7 @@
 import { QuizContext } from "@/context/quiz-context";
 import { useTimer } from "@/hooks/use-timer";
 import {
+  decodeHtml,
   getLocalStorage,
   removeLocalStorage,
   setLocalStorage,
@@ -9,22 +10,22 @@ import {
 import React, { useCallback, useEffect, useState } from "react";
 
 export default function QuizProvider({ children }) {
-  const [Questions, setQuestions] = useState([]);
-  const [QuestionCategories, setQuestionCategories] = useState([]);
+  const [questions, setQuestions] = useState([]);
+  const [questionCategories, setQuestionCategories] = useState([]);
 
-  const [isQuestionsLoading, setisQuestionsLoading] = useState(false);
-  const [isCategoryLoading, setisCategoryLoading] = useState(false);
+  const [isQuestionsLoading, setIsQuestionsLoading] = useState(false);
+  const [isCategoryLoading, setIsCategoryLoading] = useState(false);
 
   const [isQuizActive, setIsQuizActive] = useState(false);
   const [isQuizComplete, setIsQuizComplete] = useState(false);
 
   // Quiz State Progress
-  const [CurrentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [Answers, setAnswers] = useState({});
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [answers, setAnswers] = useState({});
   const [timeRemaining, setTimeRemaining] = useState(0);
 
   // Final Quiz State
-  const [Result, setResult] = useState(null);
+  const [result, setResult] = useState(null);
 
   // Resume State
   const [hasSavedQuiz, setHasSavedQuiz] = useState(false);
@@ -41,7 +42,7 @@ export default function QuizProvider({ children }) {
   }, []);
 
   const fetchCategories = async () => {
-    setisCategoryLoading(true);
+    setIsCategoryLoading(true);
     try {
       const res = await fetch(
         `${import.meta.env.VITE_API_URL}/api_category.php`,
@@ -49,7 +50,7 @@ export default function QuizProvider({ children }) {
       const data = await res.json();
       setQuestionCategories(data.trivia_categories);
     } finally {
-      setisCategoryLoading(false);
+      setIsCategoryLoading(false);
     }
   };
 
@@ -73,16 +74,16 @@ export default function QuizProvider({ children }) {
     if (!isQuizActive) return;
 
     const session = {
-      questions: Questions,
-      answers: Answers,
-      currentQuestionIndex: CurrentQuestionIndex,
+      questions,
+      answers,
+      currentQuestionIndex,
       timeRemaining,
     };
 
     setLocalStorage("quiz_session", JSON.stringify(session));
     setHasSavedQuiz(true);
     setSavedSession(session);
-  }, [Questions, Answers, CurrentQuestionIndex, timeRemaining, isQuizActive]);
+  }, [questions, answers, currentQuestionIndex, timeRemaining, isQuizActive]);
 
   // ================= FETCH QUESTIONS =================
   const fetchQuestions = async ({
@@ -91,7 +92,7 @@ export default function QuizProvider({ children }) {
     difficulty = "",
     type = "",
   }) => {
-    setisQuestionsLoading(true);
+    setIsQuestionsLoading(true);
 
     try {
       let url = `${import.meta.env.VITE_API_URL}/api.php?amount=${amount}`;
@@ -106,11 +107,12 @@ export default function QuizProvider({ children }) {
         id: i + 1,
         category: q.category,
         difficulty: q.difficulty,
-        question: q.question,
+        question: decodeHtml(q.question),
         options: shuffleArray([
-          { text: q.correct_answer, isCorrect: true },
+          { text: decodeHtml(q.correct_answer), isCorrect: true },
+          
           ...q.incorrect_answers.map((a) => ({
-            text: a,
+            text: decodeHtml(a),
             isCorrect: false,
           })),
         ]),
@@ -119,7 +121,7 @@ export default function QuizProvider({ children }) {
       setQuestions(formatted);
       return { success: true, message: "Selamat Mengerjakan Quiz" };
     } finally {
-      setisQuestionsLoading(false);
+      setIsQuestionsLoading(false);
     }
   };
 
@@ -140,13 +142,13 @@ export default function QuizProvider({ children }) {
   // ================= ANSWER =================
   const answerQuestion = (questionId, answer) => {
     const updated = {
-      ...Answers,
+      ...answers,
       [questionId]: answer,
     };
 
     setAnswers(updated);
 
-    if (CurrentQuestionIndex < Questions.length - 1) {
+    if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex((p) => p + 1);
     } else {
       completeQuiz(updated);
@@ -160,12 +162,12 @@ export default function QuizProvider({ children }) {
 
       const correct = values.filter((answer) => answer.isCorrect).length;
       const incorrect = values.length - correct;
-      const unanswered = Questions.length - values.length;
+      const unanswered = questions.length - values.length;
 
       const score =
-        Questions.length === 0
+        questions.length === 0
           ? 0
-          : Math.round((correct / Questions.length) * 100);
+          : Math.round((correct / questions.length) * 100);
 
       return {
         score,
@@ -173,18 +175,18 @@ export default function QuizProvider({ children }) {
         incorrect,
         answered: values.length,
         unanswered,
-        total: Questions.length,
+        total: questions.length,
         answers,
-        questions: Questions,
+        questions,
         completedAt: new Date(),
         timeRemaining,
       };
     },
-    [Questions, timeRemaining],
+    [questions, timeRemaining],
   );
 
   const completeQuiz = useCallback(
-    (answers = Answers) => {
+    (answers = answers) => {
       setResult(buildResult(answers));
 
       setIsQuizActive(false);
@@ -194,7 +196,7 @@ export default function QuizProvider({ children }) {
       setHasSavedQuiz(false);
       setSavedSession(null);
     },
-    [Answers, buildResult],
+    [answers, buildResult],
   );
 
   // ================= RESUME =================
@@ -213,29 +215,23 @@ export default function QuizProvider({ children }) {
     setAnswers(session.answers);
     setCurrentQuestionIndex(session.currentQuestionIndex);
     setTimeRemaining(session.timeRemaining);
-
     setIsQuizActive(true);
     setIsQuizComplete(false);
-
     setHasSavedQuiz(false);
     setSavedSession(null);
-
     return true;
   };
 
   // ================= RESET =================
   const resetQuiz = () => {
     removeLocalStorage("quiz_session");
-
     setQuestions([]);
     setAnswers({});
     setCurrentQuestionIndex(0);
     setTimeRemaining(0);
-
     setIsQuizActive(false);
     setIsQuizComplete(false);
     setResult(null);
-
     setHasSavedQuiz(false);
     setSavedSession(null);
   };
@@ -243,22 +239,21 @@ export default function QuizProvider({ children }) {
   return (
     <QuizContext.Provider
       value={{
-        Questions,
-        QuestionCategories,
+        questions,
+        questionCategories,
         isQuestionsLoading,
         isCategoryLoading,
-        CurrentQuestionIndex,
-        Answers,
+        currentQuestionIndex,
+        answers,
         timeRemaining,
         isQuizActive,
         isQuizComplete,
-        Result,
+        result,
         hasSavedQuiz,
-        savedSession, // 🔥 IMPORTANT BUAT DIALOG
+        savedSession,
         fetchQuestions,
         startQuiz,
         answerQuestion,
-
         resumeQuiz,
         resetQuiz,
         completeQuiz,
