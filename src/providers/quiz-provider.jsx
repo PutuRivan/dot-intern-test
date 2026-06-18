@@ -184,10 +184,12 @@ export default function QuizProvider({ children }) {
     },
     [questions, timeRemaining],
   );
-
+  
   const completeQuiz = useCallback(
-    (answers = answers) => {
-      setResult(buildResult(answers));
+    (submittedAnswers) => {
+      const finalAnswers = submittedAnswers ?? answers;
+
+      setResult(buildResult(finalAnswers));
 
       setIsQuizActive(false);
       setIsQuizComplete(true);

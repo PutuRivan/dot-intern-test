@@ -8,38 +8,35 @@ export function useTimer(isActive, timeRemaining, setTimeRemaining, onComplete) 
     onCompleteRef.current = onComplete;
   }, [onComplete]);
 
-  useEffect(() => {
+useEffect(() => {
+  if (intervalRef.current) {
+    clearInterval(intervalRef.current);
+    intervalRef.current = null;
+  }
+
+  if (isActive && timeRemaining > 0) {
+    intervalRef.current = setInterval(() => {
+      setTimeRemaining(prev => {
+        if (prev <= 1) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+          onCompleteRef.current();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  } else {
+    console.log('⏸️ Timer not started:', { isActive, timeRemaining });
+  }
+
+  return () => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
-
-    if (isActive && timeRemaining > 0) {
-      intervalRef.current = setInterval(() => {
-        setTimeRemaining(prev => {
-
-          if (prev <= 1) {
-            if (intervalRef.current) {
-              clearInterval(intervalRef.current);
-              intervalRef.current = null;
-            }
-            onCompleteRef.current();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    } else {
-      console.log('⏸️ Timer not started:', { isActive, timeRemaining });
-    }
-
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-    };
-  }, [isActive, timeRemaining, setTimeRemaining]);
+  };
+}, [isActive, setTimeRemaining]); 
 
   return timeRemaining;
 }
