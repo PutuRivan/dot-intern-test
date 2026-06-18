@@ -14,7 +14,7 @@ export default function QuizProvider({ children }) {
 
   // Quiz State Progress
   const [CurrentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [Answers, setAnswers] = useState([]);
+  const [Answers, setAnswers] = useState({});
   const [timeRemaining, setTimeRemaining] = useState(0);
 
   // Final Quiz State
@@ -96,42 +96,57 @@ export default function QuizProvider({ children }) {
   };
 
   const answerQuestion = (questionId, answer) => {
-    setAnswers((prev) => ({
-      ...prev,
+    const nextAnswers = {
+      ...Answers,
       [questionId]: answer,
-    }));
+    };
+
+    setAnswers(nextAnswers);
 
     if (CurrentQuestionIndex < Questions.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
     } else {
-      completeQuiz();
+      completeQuiz(nextAnswers);
     }
   };
 
-  const completeQuiz = useCallback(() => {
-    const score = Object.values(Answers).filter(
-      (answer) => answer.isCorrect,
-    ).length;
+  const buildResult = useCallback(
+    (answers) => {
+      const values = Object.values(answers);
 
-    const incorrect = Questions.length - score;
+      const correct = values.filter((answer) => answer.isCorrect).length;
+      const incorrect = values.length - correct;
+      const unanswered = Questions.length - values.length;
 
-    const percentage =
-      Questions.length === 0 ? 0 : Math.round((score / Questions.length) * 100);
+      const score =
+        Questions.length === 0
+          ? 0
+          : Math.round((correct / Questions.length) * 100);
 
-    setResult({
-      score,
-      incorrect,
-      total: Questions.length,
-      percentage,
-      answers: Answers,
-      questions: Questions,
-      completedAt: new Date(),
-      timeRemaining,
-    });
+      return {
+        score,
+        correct,
+        incorrect,
+        answered: values.length,
+        unanswered,
+        total: Questions.length,
+        answers,
+        questions: Questions,
+        completedAt: new Date(),
+        timeRemaining,
+      };
+    },
+    [Questions, timeRemaining],
+  );
 
-    setIsQuizActive(false);
-    setIsQuizComplete(true);
-  }, [Answers, Questions, timeRemaining]);
+  const completeQuiz = useCallback(
+    (answers = Answers) => {
+      setResult(buildResult(answers));
+      setIsQuizActive(false);
+      setIsQuizComplete(true);
+    },
+    [Answers, buildResult],
+  );
 
   return (
     <QuizContext.Provider
