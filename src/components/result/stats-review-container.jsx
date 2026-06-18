@@ -4,6 +4,7 @@ import PieChartContainer from "./pie-chart";
 import StatsCard from "./stats-card";
 import { ArrowDown } from "lucide-react";
 import { Button } from "../ui/button";
+import { Link } from "react-router";
 
 export default function StatsReviewContainer({ Result }) {
   return (
@@ -33,7 +34,9 @@ export default function StatsReviewContainer({ Result }) {
             <ArrowDown className="h-4 w-4 animate-bounce" />
           </div>
 
-          <Button>Take Another Quiz</Button>
+          <Link to={"/home"}>
+            <Button>Take Another Quiz</Button>
+          </Link>
         </div>
       </Card>
     </section>
