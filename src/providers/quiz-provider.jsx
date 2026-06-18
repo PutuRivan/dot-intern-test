@@ -1,11 +1,17 @@
 import { QuizContext } from "@/context/quiz-context";
 import { useTimer } from "@/hooks/use-timer";
-import { shuffleArray } from "@/libs/utils";
+import {
+  getLocalStorage,
+  removeLocalStorage,
+  setLocalStorage,
+  shuffleArray,
+} from "@/libs/utils";
 import React, { useCallback, useEffect, useState } from "react";
 
 export default function QuizProvider({ children }) {
   const [Questions, setQuestions] = useState([]);
   const [QuestionCategories, setQuestionCategories] = useState([]);
+
   const [isQuestionsLoading, setisQuestionsLoading] = useState(false);
   const [isCategoryLoading, setisCategoryLoading] = useState(false);
 
@@ -20,29 +26,65 @@ export default function QuizProvider({ children }) {
   // Final Quiz State
   const [Result, setResult] = useState(null);
 
+  // Resume State
+  const [hasSavedQuiz, setHasSavedQuiz] = useState(false);
+  const [savedSession, setSavedSession] = useState(null);
+
+  // ================= TIMER =================
   useTimer(isQuizActive, timeRemaining, setTimeRemaining, () => {
     completeQuiz();
   });
 
+  // ================= LOAD CATEGORY =================
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
   const fetchCategories = async () => {
     setisCategoryLoading(true);
     try {
-      const response = await fetch(
+      const res = await fetch(
         `${import.meta.env.VITE_API_URL}/api_category.php`,
       );
-      const data = await response.json();
+      const data = await res.json();
       setQuestionCategories(data.trivia_categories);
-    } catch (error) {
-      console.error("Error fetching categories:", error);
     } finally {
       setisCategoryLoading(false);
     }
   };
 
+  // ================= CHECK SESSION (FIXED) =================
   useEffect(() => {
-    fetchCategories();
+    const raw = getLocalStorage("quiz_session");
+
+    if (raw) {
+      const session = JSON.parse(raw);
+
+      setHasSavedQuiz(true);
+      setSavedSession(session);
+    } else {
+      setHasSavedQuiz(false);
+      setSavedSession(null);
+    }
   }, []);
 
+  // ================= SAVE SESSION =================
+  useEffect(() => {
+    if (!isQuizActive) return;
+
+    const session = {
+      questions: Questions,
+      answers: Answers,
+      currentQuestionIndex: CurrentQuestionIndex,
+      timeRemaining,
+    };
+
+    setLocalStorage("quiz_session", JSON.stringify(session));
+    setHasSavedQuiz(true);
+    setSavedSession(session);
+  }, [Questions, Answers, CurrentQuestionIndex, timeRemaining, isQuizActive]);
+
+  // ================= FETCH QUESTIONS =================
   const fetchQuestions = async ({
     amount = "10",
     category = "",
@@ -50,66 +92,68 @@ export default function QuizProvider({ children }) {
     type = "",
   }) => {
     setisQuestionsLoading(true);
+
     try {
-      let url = `${import.meta.env.VITE_API_URL}/api.php?`;
-      if (amount) url += `amount=${amount}`;
+      let url = `${import.meta.env.VITE_API_URL}/api.php?amount=${amount}`;
       if (category) url += `&category=${category}`;
       if (difficulty) url += `&difficulty=${difficulty}`;
       if (type) url += `&type=${type}`;
 
-      const response = await fetch(url);
-      const data = await response.json();
+      const res = await fetch(url);
+      const data = await res.json();
 
-      const formattedQuestions = data.results.map((question, index) => ({
-        id: index + 1,
-        category: question.category,
-        difficulty: question.difficulty,
-        question: question.question,
+      const formatted = data.results.map((q, i) => ({
+        id: i + 1,
+        category: q.category,
+        difficulty: q.difficulty,
+        question: q.question,
         options: shuffleArray([
-          {
-            text: question.correct_answer,
-            isCorrect: true,
-          },
-          ...question.incorrect_answers.map((answer) => ({
-            text: answer,
+          { text: q.correct_answer, isCorrect: true },
+          ...q.incorrect_answers.map((a) => ({
+            text: a,
             isCorrect: false,
           })),
         ]),
       }));
 
-      setQuestions(formattedQuestions);
+      setQuestions(formatted);
       return { success: true, message: "Selamat Mengerjakan Quiz" };
-    } catch (error) {
-      console.error("Errors: ", error);
     } finally {
       setisQuestionsLoading(false);
     }
   };
 
+  // ================= START =================
   const startQuiz = (config) => {
     setCurrentQuestionIndex(0);
     setAnswers({});
     setIsQuizComplete(false);
-    const timeInSeconds = config.duration * 60;
-    setTimeRemaining(timeInSeconds);
+
+    setTimeRemaining(config.duration * 60);
     setIsQuizActive(true);
+
+    removeLocalStorage("quiz_session");
+    setHasSavedQuiz(false);
+    setSavedSession(null);
   };
 
+  // ================= ANSWER =================
   const answerQuestion = (questionId, answer) => {
-    const nextAnswers = {
+    const updated = {
       ...Answers,
       [questionId]: answer,
     };
 
-    setAnswers(nextAnswers);
+    setAnswers(updated);
 
     if (CurrentQuestionIndex < Questions.length - 1) {
-      setCurrentQuestionIndex((prev) => prev + 1);
+      setCurrentQuestionIndex((p) => p + 1);
     } else {
-      completeQuiz(nextAnswers);
+      completeQuiz(updated);
     }
   };
 
+  // ================= RESULT =================
   const buildResult = useCallback(
     (answers) => {
       const values = Object.values(answers);
@@ -142,27 +186,81 @@ export default function QuizProvider({ children }) {
   const completeQuiz = useCallback(
     (answers = Answers) => {
       setResult(buildResult(answers));
+
       setIsQuizActive(false);
       setIsQuizComplete(true);
+
+      removeLocalStorage("quiz_session");
+      setHasSavedQuiz(false);
+      setSavedSession(null);
     },
     [Answers, buildResult],
   );
+
+  // ================= RESUME =================
+  const resumeQuiz = () => {
+    const raw = getLocalStorage("quiz_session");
+    if (!raw) return false;
+
+    const session = JSON.parse(raw);
+
+    if (session.timeRemaining <= 0) {
+      removeLocalStorage("quiz_session");
+      return false;
+    }
+
+    setQuestions(session.questions);
+    setAnswers(session.answers);
+    setCurrentQuestionIndex(session.currentQuestionIndex);
+    setTimeRemaining(session.timeRemaining);
+
+    setIsQuizActive(true);
+    setIsQuizComplete(false);
+
+    setHasSavedQuiz(false);
+    setSavedSession(null);
+
+    return true;
+  };
+
+  // ================= RESET =================
+  const resetQuiz = () => {
+    removeLocalStorage("quiz_session");
+
+    setQuestions([]);
+    setAnswers({});
+    setCurrentQuestionIndex(0);
+    setTimeRemaining(0);
+
+    setIsQuizActive(false);
+    setIsQuizComplete(false);
+    setResult(null);
+
+    setHasSavedQuiz(false);
+    setSavedSession(null);
+  };
 
   return (
     <QuizContext.Provider
       value={{
         Questions,
         QuestionCategories,
-        isCategoryLoading,
         isQuestionsLoading,
+        isCategoryLoading,
         CurrentQuestionIndex,
         Answers,
         timeRemaining,
+        isQuizActive,
         isQuizComplete,
         Result,
-        startQuiz,
+        hasSavedQuiz,
+        savedSession, // 🔥 IMPORTANT BUAT DIALOG
         fetchQuestions,
+        startQuiz,
         answerQuestion,
+
+        resumeQuiz,
+        resetQuiz,
         completeQuiz,
       }}
     >
