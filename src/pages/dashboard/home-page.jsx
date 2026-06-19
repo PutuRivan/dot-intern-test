@@ -41,7 +41,7 @@ export default function HomePage() {
   };
 
   return (
-    <main className="h-svh px-50 py-10 space-y-5">
+    <main className="h-svh max-w-3xl mx-auto space-y-5">
       <Header />
 
       <QuizOptionContainer

@@ -46,7 +46,7 @@ export default function QuizOptionContainer({
     navigate("/quiz");
   };
   return (
-    <Card>
+    <Card className={"m-5 md:m-0"}>
       <CardHeader>
         <CardTitle className={"text-xl"}>Start New Quiz</CardTitle>
         <CardDescription>
@@ -55,7 +55,7 @@ export default function QuizOptionContainer({
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          <FieldGroup className={"grid grid-cols-2 gap-5"}>
+          <FieldGroup className={"grid grid-cols-1 lg:grid-cols-2 gap-5"}>
             {/* Questions */}
             <Controller
               name="amount"

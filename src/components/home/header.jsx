@@ -16,7 +16,7 @@ export default function Header() {
   };
 
   return (
-    <header className="flex justify-between items-center">
+    <header className="flex justify-between items-center p-5">
       <div>
         <h1 className="text-2xl font-bold">Quiz App</h1>
         <h3>Welcome Back, {user.username}</h3>
